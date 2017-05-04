@@ -99,6 +99,10 @@ class F3iGfResend {
 			mysack.onError = function () {
 				alert(<?php echo json_encode( __( 'Ajax error while resending submission', self::N ) ); ?>)
 			};
+			mysack.onSuccess = function(response) {
+				if(!response.entry_id) alert('Unable to resend entry: ' + JSON.stringify(response))
+				else alert('Success resending entry ' + response.entry_id);
+			}
 			mysack.runAJAX();
 
 			return true;
@@ -118,7 +122,7 @@ class F3iGfResend {
 		$submission = array();
 		foreach ( $form['fields'] as $field ) {
 			$id = $field->id;
-			$submission[$id] = $entry[$id];
+			$submission['input_' . $id] = $entry[$id];
 			$submission[$field->label] = $entry[$id];
 		}
 
@@ -131,43 +135,7 @@ class F3iGfResend {
 	}
 
 
-
-
-
-	public function field_format($submission, $form, $service) {
-		$settings = F3iFieldFormatOptions::settings();
-
-		$fields = array();
-		$pattern = array();
-		$replace = array();
-
-		foreach((array) $settings[F3iFieldFormatOptions::F_FIELDS] as $i => $input) {
-			// url-style declaration for source+?destination
-			parse_str($input, $f);
-			$f = array_merge($fields, $f);
-
-			//$fields = explode(F3iFieldFormatOptions::FIELD_DELIM, $settings[F3iFieldFormatOptions::F_FIELDS]);
-
-			// regex - pattern, replace
-			$pattern = array_merge($pattern, explode(F3iFieldFormatOptions::REGEX_DELIM, $settings[F3iFieldFormatOptions::F_PATTERNS][$i])); // '/(\d+)\/(\d+)\/(\d+)/';
-			$replace = array_merge($replace, explode(F3iFieldFormatOptions::REGEX_DELIM, $settings[F3iFieldFormatOptions::F_REPLACEMENTS][$i])); //'$2-$1-$3';
-		}
-
-		### _log('bouwgenius-date', $fields, $submission); 
-
-		foreach($fields as $dest => $src) {
-			if(isset($submission[$src]) && !empty($submission[$src])) {
-				$x = preg_replace($pattern, $replace, $submission[$src]);
-
-				### _log($submission[$src], $x, $src);
-
-				$submission[is_numeric($dest) ? $src : $dest] = $x;
-			}
-		}
-
-		return $submission;
-	}//--	fn	date_format
-}//---	class	BouwgeniusDateFormat
+}//---	class	F3iGfResend
 
 // engage!
 new F3iGfResend();
