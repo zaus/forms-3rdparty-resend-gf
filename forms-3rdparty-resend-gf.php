@@ -79,34 +79,37 @@ class F3iGfResend {
 	const PARAM_ENTRY_ID = 'lead_id';
 
 	public function scripts() {
-		// found this in GF entry_list.php as well, but why not use https://codex.wordpress.org/AJAX_in_Plugins
+		// found 'mysack' in GF entry_list.php as well, adapted to use use https://codex.wordpress.org/AJAX_in_Plugins
 		$N = self::N;
 		?><script>
 		(function($) {
+			// quick cheat for entry page
 			var $resendButton = $('.gf_form_toolbar_f3i_resend a');
 			var entryId = $resendButton.prop('href').split('id=')[1];
 			$resendButton.prop('href', '<?php echo $this->format_ajax_url("' + entryId + '"); ?>');
-		})(jQuery);
-		function <?php echo self::N ?>(entry_id, name, value) {
-			var mysack = new sack(ajaxurl);
-			mysack.execute = 1;
-			mysack.method = 'POST';
-			mysack.setVar("action", "<?php echo $N?>");
-			mysack.setVar("<?php echo $N ?>", "<?php echo wp_create_nonce( $N ) ?>");
-			mysack.setVar("<?php echo self::PARAM_ENTRY_ID ?>", entry_id);
-			if(name) mysack.setVar("name", name);
-			if(value) mysack.setVar("value", value);
-			mysack.onError = function () {
-				alert(<?php echo json_encode( __( 'Ajax error while resending submission', self::N ) ); ?>)
-			};
-			mysack.onSuccess = function(response) {
-				if(!response.entry_id) alert('Unable to resend entry: ' + JSON.stringify(response))
-				else alert('Success resending entry ' + response.entry_id);
-			}
-			mysack.runAJAX();
 
-			return true;
-		}
+			// expose global
+			window.<?php echo self::N ?> = function(entry_id, name, value) {
+				var data = <?php echo json_encode(array(
+					'action' => $N
+					, $N => wp_create_nonce( $N )
+					//, self::PARAM_ENTRY_ID => 'entry_id'
+				)); ?>;
+				data['<?php echo self::PARAM_ENTRY_ID ?>'] = entry_id;
+				if(name) data.name = name;
+				if(value) data.value = value;
+
+				return $.post(ajaxurl, data, null, 'json')
+					.fail(function(x) {
+						alert(<?php echo json_encode( __( 'Ajax error while resending submission', self::N ) ); ?>)
+					})
+					.done(function(response) {
+						if(!response.entry_id) alert('Unable to resend entry: ' + JSON.stringify(response));
+						else alert('Success resending entry ' + response.entry_id);
+					});
+			}
+		})(jQuery);
+
 		</script><?php
 	}
 
