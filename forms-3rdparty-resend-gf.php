@@ -109,10 +109,24 @@ class F3iGfResend {
 	public function resend_ajax() {
 		check_admin_referer(self::N, self::N);
 
-		### _log(__FUNCTION__, $_POST);
 		$entry_id = $_POST[self::PARAM_ENTRY_ID];
 
-		echo json_encode(array($entry_id, 'woot'));
+		$entry = GFAPI::get_entry( $entry_id );
+		// get the form so we can 'restart' the original f3i processing
+		$form = GFAPI::get_form( $entry['form_id'] ); // same thing? GFFormsModel::get_form_meta( $entry['form_id'] );
+
+		$submission = array();
+		foreach ( $form['fields'] as $field ) {
+			$id = $field->id;
+			$submission[$id] = $entry[$id];
+			$submission[$field->label] = $entry[$id];
+		}
+
+		$f3p = Forms3rdPartyIntegration::$instance;
+		// just call the whole shebang
+		$f3p->before_send($form, $submission);
+
+		echo json_encode(array('entry_id' => $entry_id));
 		wp_die(); // this is required to terminate immediately and return a proper response
 	}
 
