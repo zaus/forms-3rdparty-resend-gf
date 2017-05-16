@@ -26,7 +26,7 @@ class F3iGfResend {
 		// adds to entry listing toolbar
 		add_action('gform_entries_first_column_actions', array(&$this, 'add_action'), 10, 5);
 		// ajax behavior on entry list
-		add_action( 'admin_footer', array(&$this, 'scripts') );
+		add_action( 'admin_print_footer_scripts', array(&$this, 'scripts') );
 		add_action( 'wp_ajax_' . self::N, array(&$this, 'resend_ajax') );
 
 		// whenever you edit the entry?
@@ -88,7 +88,7 @@ class F3iGfResend {
 			var entryId = $resendButton.prop('href').split('id=')[1];
 			$resendButton.prop('href', '<?php echo $this->format_ajax_url("' + entryId + '"); ?>');
 
-			// expose global
+			// expose global so GF link callback can reach it
 			window.<?php echo self::N ?> = function(entry_id, name, value) {
 				var data = <?php echo json_encode(array(
 					'action' => $N
