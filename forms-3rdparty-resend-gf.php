@@ -5,10 +5,11 @@ Plugin Name: Forms-3rdparty Gravity Forms Resubmit Entry
 Plugin URI: https://github.com/zaus/forms-3rdparty-gf-resend
 Description: Resend Gravity Forms entries to 3rdparty endpoint
 Author: zaus
-Version: 0.1
+Version: 0.1.2
 Author URI: http://drzaus.com
 Changelog:
 	0.1	initial
+	0.1.2 fixed checkboxes
 */
 
 class F3iGfResend {
