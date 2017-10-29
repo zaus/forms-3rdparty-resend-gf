@@ -128,15 +128,15 @@ class F3iGfResend {
 		foreach ( $form['fields'] as $field ) {
 			$id = $field->id;
 			if($field->type == 'checkbox') {
-				$i = count($field->choices);
-				$submission['input_' . $id] = array();
+				$n = count($field->choices) + 1;
+				$i = 0;
 				$submission[$field->label] = array();
-				while($i-- > 0) {
-					$k = sprintf('%d.%d', $id, $i+1);
+				while($i++ <= $n) {
+					$k = sprintf('%d.%d', $id, $i);
 					### _log($i, $k);
 					if(isset($entry[$k]) && !empty($entry[$k])) {
-						$submission['input_' . $id][$i] = $entry[$k];
-						$submission[$field->label][$i] = $entry[$k];
+						$submission["input_{$id}_{$i}"] = $entry[$k];
+						$submission[$field->label][] = $entry[$k];
 					}
 				}
 			}
