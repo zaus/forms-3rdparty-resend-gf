@@ -122,11 +122,28 @@ class F3iGfResend {
 		// get the form so we can 'restart' the original f3i processing
 		$form = GFAPI::get_form( $entry['form_id'] ); // same thing? GFFormsModel::get_form_meta( $entry['form_id'] );
 
+		### _log($entry, $form['fields'] );
+
 		$submission = array();
 		foreach ( $form['fields'] as $field ) {
 			$id = $field->id;
-			$submission['input_' . $id] = $entry[$id];
-			$submission[$field->label] = $entry[$id];
+			if($field->type == 'checkbox') {
+				$i = count($field->choices);
+				$submission['input_' . $id] = array();
+				$submission[$field->label] = array();
+				while($i-- > 0) {
+					$k = sprintf('%d.%d', $id, $i+1);
+					### _log($i, $k);
+					if(isset($entry[$k]) && !empty($entry[$k])) {
+						$submission['input_' . $id][$i] = $entry[$k];
+						$submission[$field->label][$i] = $entry[$k];
+					}
+				}
+			}
+			else {
+				$submission['input_' . $id] = $entry[$id];
+				$submission[$field->label] = $entry[$id];
+			}
 		}
 
 		$f3p = Forms3rdPartyIntegration::$instance;
