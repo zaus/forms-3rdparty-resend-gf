@@ -33,6 +33,9 @@ N/A.
 
 == Changelog ==
 
+= 0.1.2 =
+* Fix: checkboxes with multiple responses
+
 = 0.1 =
 * Investigating possibilities
 
