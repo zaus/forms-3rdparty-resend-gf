@@ -5,11 +5,12 @@ Plugin Name: Forms-3rdparty Gravity Forms Resubmit Entry
 Plugin URI: https://github.com/zaus/forms-3rdparty-gf-resend
 Description: Resend Gravity Forms entries to 3rdparty endpoint
 Author: zaus
-Version: 0.1.2
+Version: 0.1.3
 Author URI: http://drzaus.com
 Changelog:
 	0.1	initial
 	0.1.2 fixed checkboxes
+	0.1.3 only add script to gravity forms page
 */
 
 class F3iGfResend {
@@ -27,7 +28,7 @@ class F3iGfResend {
 		// adds to entry listing toolbar
 		add_action('gform_entries_first_column_actions', array(&$this, 'add_action'), 10, 5);
 		// ajax behavior on entry list
-		add_action( 'admin_print_footer_scripts', array(&$this, 'scripts') );
+		add_action( 'admin_enqueue_scripts', array(&$this, 'load_scripts') );
 		add_action( 'wp_ajax_' . self::N, array(&$this, 'resend_ajax') );
 
 		// whenever you edit the entry?
@@ -35,6 +36,13 @@ class F3iGfResend {
 
 		// other potentials?
 		//RGForms::post( 'action' )
+	}
+
+	public function load_scripts($hook) {
+		### _log(__FILE__ , $hook);
+		if(strpos($hook, 'gf_edit_forms') === false && strpos($hook, 'gf_entries') === false) return;
+
+		add_action( 'admin_print_footer_scripts', array(&$this, 'scripts') );
 	}
 
 	public function toolbar($menu_items, $form_id) {
@@ -86,6 +94,8 @@ class F3iGfResend {
 		(function($) {
 			// quick cheat for entry page
 			var $resendButton = $('.gf_form_toolbar_f3i_resend a');
+			if(!$resendButton || !$resendButton.length) return;
+
 			var entryId = $resendButton.prop('href').split('id=')[1];
 			$resendButton.prop('href', '<?php echo $this->format_ajax_url("' + entryId + '"); ?>');
 
